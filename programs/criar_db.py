@@ -16,10 +16,10 @@ def db_function():
     # Inserção de Dados do Primeiro Usuário
     user = [
     ('ID01',
-     'Matheus',
+     'WKO',
       'klodivilf@gmail.com',
-       '31997489888',
-        'b512090093lgg9xg4ul63wx3',
+       '00112233445',
+        '20215900uw4uf69wx6fx933w',
          '412499412941244415564389')
     ]
 
@@ -37,7 +37,7 @@ def db_function():
             )""")
     # Inserção de Dados do Primeiro Usuário
     user_data = [
-        ('ID01', 'abte_7210840586510319', 'b512090093lgg9xg4ul63wx3', 'palha_8511994129412443', 'C:\\Users\\w_ko\\Área de Trabalho\\A\\B', 'D', b'y0mkre6iu9adtamm')
+        ('ID01', 'abte_7210840586510319', '20215900uw4uf69wx6fx933w', 'palha_8511994129412443', 'C:\\Users\\username\\Desktop\\A\\B', 'D', b'y0mkre6iu9adtamm')
         ]
 
     cursor.executemany("INSERT INTO users_data VALUES (?, ?, ?, ?, ?, ?, ?)", (user_data))

@@ -1,6 +1,7 @@
 #-------------------------
 # Importar módulos
 #-------------------------
+from traceback import print_tb
 from criar_db import db_function
 #-------------------------
 # Importando bibliotecas
@@ -16,6 +17,8 @@ import sqlite3
 import pyaes
 import glob
 import smtplib
+import platform
+
 #-------------------------
 # Variáveis Gerais
 #-------------------------
@@ -50,6 +53,7 @@ chave_autenticacao_usuario = ""
 pasta_segura = "Secure File"
 host = "smtp.gmail.com"
 port = "587"
+# Conta de email para envio dos emails
 login = "ibrkt.sys@gmail.com"
 senha = "1b!rk$tsys"
 #-------------------------
@@ -60,6 +64,20 @@ confirmacao_descriptografada = False
 confirmacao_entrada = False
 confirmacao_criptografada = False
 #-------------------------
+
+class Bibliotecas():
+    def importar():
+        so = platform.system()
+
+        print(f"\n{azul}Importando bibliotecas externas...{resetar}")
+
+        if so == "Windows":
+            os.system('pip install colorama')
+            os.system('pip install pyaes')
+        elif so == "Linux":
+            os.system('pip install colorama')
+            os.system('sudo apt-get install -y python3-pyaes')
+        
 
 class Validacao():
     def validarMenu():
@@ -85,99 +103,14 @@ class Validacao():
                         Validacao.entrar()
                     elif opcao == 2:
                         Importacao.importar_listas()
-                        Validacao.cadastrar()
+                        Cadastro.cadastrarNome()
                     elif opcao == 3:
                         Criptografia.descriptografar()
                     elif opcao == 4:
                         Email.reenviar()
+
                     else:
                         exit()
-
-
-    def cadastrar():
-        global caminho_arq, unidade_usb
-
-        while True:
-            try:
-                nome = str(input("Nome: "))
-                valid_name = re.search(r'^\b[a-zA-Z]{3,}[a-zA-Z0-9]*?\b$', nome)
-            except KeyboardInterrupt:
-                print(f"\n{azul}A entrada de dados foi interrompida pelo usuário.{resetar}")
-                Validacao.validarMenu()
-            else:
-                if nome == "" or valid_name == None:
-                    print(f"{vermelho}Por favor, digite um nome válido.\n[*] Os 3 primeiros dígitos devem ser letras.\n[*] Não digite caracteres especiais.\n[*] Sem acentos.\n[*] Sem espaços.{resetar}")
-                elif nome is not None:
-                    while True:
-                        try:
-                            email = str(input("Email: "))
-                            email = email.lower()
-                            valid_email = re.search(r'^\b[a-z_\.]{3,}[a-z0-9_\.]*@[a-z]{3,}\.[a-z]{2,}\b$', email)
-                        except KeyboardInterrupt:
-                            print(f"\n{azul}A entrada de dados foi interrompida pelo usuário.{resetar}")
-                            Validacao.validarMenu()
-                        else:
-                            if valid_email == None:
-                                print(f"{vermelho}Por favor, digite um email dentro do padrão válido.{resetar}")
-                            elif email in email_usuario:
-                                print("", "-"*55, "\n", " ",f"{azul}Já existe um usuário cadastrado com este email.{resetar}\n", "-"*55)
-                                input(f"{azul}-=- Aperte ENTER para continuar -=-{resetar}")
-                                Validacao.validarMenu()
-                            elif valid_email is not None:
-                                while True:
-                                    try:
-                                        caminho = str(input("Caminho da Pasta em que se localiza o arquivo: "))
-                                        verifica_pasta = os.path.exists(caminho)
-                                    except KeyboardInterrupt:
-                                        print(f"\n{azul}A entrada de dados foi interrompida pelo usuário.{resetar}")
-                                        Validacao.validarMenu()
-                                    else:
-                                        if caminho == "" or not verifica_pasta:
-                                            print(f"{vermelho}Por favor, digite um caminho válido e existente.\n[*] Exemplo: C:\\Users\\Usuario\\Área de Trabalho\\Pasta{resetar}")
-                                        elif verifica_pasta:
-                                            while True:
-                                                try:
-                                                    unidade = str(input("Unidade USB (Ex: D): "))
-                                                    verifica_unidade = os.path.exists(f"{unidade}:/")
-                                                except KeyboardInterrupt:
-                                                    print(f"\n{azul}A entrada de dados foi interrompida pelo usuário.{resetar}")
-                                                    Validacao.validarMenu()
-                                                else:
-                                                    if verifica_unidade != True:
-                                                        print(f"{vermelho}Por favor verifique se a unidade do USB está correta.\n[*] Ex.: D:/\n[*] Informe somente a letra da unidade: D\n[*] Certifique-se que o dispositivo está conectado no PC.{resetar}")
-                                                    else:
-                                                        while True:
-                                                            try:
-                                                                telefone = input("Telefone: ")
-                                                                valid_phone = re.search(r'\b[0-9]{11}\b', telefone)
-                                                            except KeyboardInterrupt:
-                                                                print(f"\n{azul}A entrada de dados foi interrompida pelo usuário.{resetar}")
-                                                                Validacao.validarMenu()
-                                                            else:
-                                                                if valid_phone == None:
-                                                                    print(f"{vermelho}Por favor, digite um telefone válido.\n[*] 11 dígitos.\n[*] Sem caracteres especiais.\n[*] Sem espaço.{resetar}")
-                                                                elif int(telefone) in telefone_usuario:
-                                                                    print("", "-"*55, "\n", " ",f"{azul}Já existe um usuário cadastrado com este telefone.{resetar}\n", "-"*55)
-                                                                    input(f"{azul}-=- Aperte ENTER para continuar -=-{resetar}")
-                                                                    Validacao.validarMenu()
-                                                                elif valid_phone is not None:
-                                                                    while True:
-                                                                        try:
-                                                                            print(f"\n{azul}--- Seus Dados ---\nNome: {nome}\nEmail: {email}\nTelefone: {telefone}\nCaminho da Pasta: {caminho}\nUnidade do USB: {unidade}\n", "-"*15, f"{resetar}")
-                                                                            confirmacao_dados = int(input(f"[1] Sim\n[2] Não\nSeus dados estão corretos? "))
-                                                                            if confirmacao_dados > 2 or confirmacao_dados < 1:
-                                                                                raise ValueError
-                                                                        except (ValueError, TypeError):
-                                                                            print(f"{vermelho}Por favor, digite um valor válido.\n[*] 1 ou 2\n[*] Sem espaços.{resetar}")
-                                                                        else:
-                                                                            if confirmacao_dados == 1:
-                                                                                print(f"{azul}Realizando o cadastro...{resetar}")
-                                                                                Gerador.gerar_dados(nome, email, telefone, caminho, unidade)
-                                                                                Validacao.validarMenu()
-                                                                            else:
-                                                                                Validacao.cadastrar()
-
-
     def entrar():
         Verificacao.verificar_usuario()
         if id_request != "":
@@ -237,7 +170,7 @@ class Validacao():
                                 print(f"{azul}={resetar}"*50)
                                 Criptografia.descriptografar_arquivos(chave_criptografia, caminho_usb)
                                 print(f"{azul}={resetar}"*50)
-                                print(f"{verde}{'ARQUIVOS DESCRIPTOGRAFADOS COM SUCESSO':^50}!{resetar}")
+                                print(f"{verde}{'ARQUIVOS DESCRIPTOGRAFADOS COM SUCESSO!':^50}{resetar}")
                                 print(f"{azul}={resetar}"*50)
                         else:
                             if escolha == 1:
@@ -252,6 +185,102 @@ class Validacao():
                                 print(f"{azul}={resetar}"*50)
                     else:
                         print(f"\n{vermelho}Nenhum pendrive de unidade {unidade_do_usb} foi encontrado.\n[*] Insira no seu computador o mesmo pendrive\nde quando você fez o cadastro.{resetar}")
+
+
+class Cadastro():
+    def cadastrarNome():
+        global nome
+        while True:
+            try:
+                nome = str(input("Nome: "))
+                valid_name = re.search(r'^\b[a-zA-Z]{3,}[a-zA-Z0-9]*?\b$', nome)
+            except KeyboardInterrupt:
+                print(f"\n{azul}A entrada de dados foi interrompida pelo usuário.{resetar}")
+                Validacao.validarMenu()
+            else:
+                if nome == "" or valid_name == None:
+                    print(f"{vermelho}Por favor, digite um nome válido.\n[*] Os 3 primeiros dígitos devem ser letras.\n[*] Não digite caracteres especiais.\n[*] Sem acentos.\n[*] Sem espaços.{resetar}")
+                elif nome is not None:
+                    Cadastro.cadastrarEmail()
+    def cadastrarEmail():
+        global email
+        while True:
+            try:
+                email = str(input("Email: "))
+                email = email.lower()
+                valid_email = re.search(r'^\b[a-z_\.]{3,}[a-z0-9_\.]*@[a-z]{3,}\.[a-z]{2,}\b$', email)
+            except KeyboardInterrupt:
+                print(f"\n{azul}A entrada de dados foi interrompida pelo usuário.{resetar}")
+                Validacao.validarMenu()
+            else:
+                if valid_email == None:
+                    print(f"{vermelho}Por favor, digite um email dentro do padrão válido.{resetar}")
+                elif email in email_usuario:
+                    print("", "-"*55, "\n", " ",f"{azul}Já existe um usuário cadastrado com este email.{resetar}\n", "-"*55)
+                    Cadastro.cadastrarEmail()
+                elif valid_email is not None:
+                    Cadastro.cadastrarCaminhoPasta()
+    def cadastrarCaminhoPasta():
+        global caminho
+        while True:
+            try:
+                caminho = str(input("Caminho da Pasta em que se localiza o arquivo: "))
+                verifica_pasta = os.path.exists(caminho)
+            except KeyboardInterrupt:
+                print(f"\n{azul}A entrada de dados foi interrompida pelo usuário.{resetar}")
+                Validacao.validarMenu()
+            else:
+                if caminho == "" or not verifica_pasta:
+                    print(f"{vermelho}Por favor, digite um caminho válido e existente.\n[*] Exemplo: C:\\Users\\Usuario\\Área de Trabalho\\Pasta{resetar}")
+                elif verifica_pasta:
+                    Cadastro.cadastrarUnidadeUSB()
+    def cadastrarUnidadeUSB():
+        global unidade
+        while True:
+            try:
+                unidade = str(input("Unidade USB (Ex: D): "))
+                verifica_unidade = os.path.exists(f"{unidade}:/")
+            except KeyboardInterrupt:
+                print(f"\n{azul}A entrada de dados foi interrompida pelo usuário.{resetar}")
+                Validacao.validarMenu()
+            else:
+                if verifica_unidade != True:
+                    print(f"{vermelho}Por favor verifique se a unidade do USB está correta.\n[*] Ex.: D:/\n[*] Informe somente a letra da unidade: D\n[*] Certifique-se que o dispositivo está conectado no PC.{resetar}")
+                else:
+                    Cadastro.cadastrarTelefone()
+    def cadastrarTelefone():
+        global telefone
+        while True:
+            try:
+                telefone = input("Telefone: ")
+                valid_phone = re.search(r'\b[0-9]{11}$\b', telefone)
+            except KeyboardInterrupt:
+                print(f"\n{azul}A entrada de dados foi interrompida pelo usuário.{resetar}")
+                Validacao.validarMenu()
+            else:
+                if valid_phone == None:
+                    print(f"{vermelho}Por favor, digite um telefone válido.\n[*] 11 dígitos.\n[*] Sem caracteres especiais.\n[*] Sem espaço.{resetar}")
+                elif int(telefone) in telefone_usuario:
+                    print("", "-"*55, "\n", " ",f"{azul}Já existe um usuário cadastrado com este telefone.{resetar}\n", "-"*55)
+                    Cadastro.cadastrarTelefone()
+                elif valid_phone is not None:
+                    Cadastro.confirmarDados()
+    def confirmarDados():
+        while True:
+            try:
+                print(f"\n{azul}--- Seus Dados ---\nNome: {nome}\nEmail: {email}\nTelefone: {telefone}\nCaminho da Pasta: {caminho}\nUnidade do USB: {unidade}\n", "-"*15, f"{resetar}")
+                confirmacao_dados = int(input(f"[1] Sim\n[2] Não\nSeus dados estão corretos? "))
+                if confirmacao_dados > 2 or confirmacao_dados < 1:
+                    raise ValueError
+            except (ValueError, TypeError):
+                print(f"{vermelho}Por favor, digite um valor válido.\n[*] 1 ou 2\n[*] Sem espaços.{resetar}")
+            else:
+                if confirmacao_dados == 1:
+                    print(f"{azul}Realizando o cadastro...{resetar}")
+                    Gerador.gerar_dados(nome, email, telefone, caminho, unidade)
+                    Validacao.validarMenu()
+                else:
+                    Cadastro.cadastrarNome()
 
 
 class Verificacao():
@@ -372,7 +401,6 @@ class Verificacao():
             except KeyboardInterrupt:
                 print(f"\n{azul}A entrada de dados foi interrompida pelo usuário.{resetar}")
                 Validacao.validarMenu()
-                
             else:
                 if id_request == "00":
                     print("="*50)
@@ -410,17 +438,17 @@ class Criptografia():
         hash_para_criptografar = hash_betas_cripto[len(hash_betas_cripto)-1]
         for i in hash_para_criptografar:
             if i == "7":
-                hash_para_criptografar = hash_para_criptografar.replace(f"{i}", "f")
+                hash_para_criptografar = hash_para_criptografar.replace(i, "f")
             elif i == "8":
-                hash_para_criptografar = hash_para_criptografar.replace(f"{i}", "w")
+                hash_para_criptografar = hash_para_criptografar.replace(i, "w")
             elif i == "0":
-                hash_para_criptografar = hash_para_criptografar.replace(f"{i}", "x")
+                hash_para_criptografar = hash_para_criptografar.replace(i, "x")
             elif i == "2":
-                hash_para_criptografar = hash_para_criptografar.replace(f"{i}", "u")
+                hash_para_criptografar = hash_para_criptografar.replace(i, "u")
             elif i == "1":
-                hash_para_criptografar = hash_para_criptografar.replace(f"{i}", "l")
+                hash_para_criptografar = hash_para_criptografar.replace(i, "l")
             elif i == "5":
-                hash_para_criptografar = hash_para_criptografar.replace(f"{i}", "g")
+                hash_para_criptografar = hash_para_criptografar.replace(i, "g")
 
         for k in range(1, 7):
             if hash_para_criptografar[int(k-1):int(k)] == "b":
@@ -557,23 +585,28 @@ class Criptografia():
 
 
     def descriptografar_arquivos(key, caminho):
-        os.chdir(caminho)
-        for file in glob.glob('*.wko'):
-            name_file = open(file, 'rb')
-            file_data = name_file.read()
-            name_file.close()
+        verifica_pasta = os.path.exists(caminho)
 
-            descrypt_aes = pyaes.AESModeOfOperationCTR(key)
-            descrypt_data = descrypt_aes.decrypt(file_data)
-            descrypt_file_name = file.replace('.wko', '')
+        if verifica_pasta:
+            os.chdir(caminho)
+            for file in glob.glob('*.wko'):
+                name_file = open(file, 'rb')
+                file_data = name_file.read()
+                name_file.close()
 
-            new_file = open(f'{caminho}\\{descrypt_file_name}', 'wb')
-            new_file.write(descrypt_data)
-            new_file.close()
+                descrypt_aes = pyaes.AESModeOfOperationCTR(key)
+                descrypt_data = descrypt_aes.decrypt(file_data)
+                descrypt_file_name = file.replace('.wko', '')
 
-            print(f"{azul}Arquivo {amarelo}{descrypt_file_name} {azul}descriptografado com sucesso.{resetar}")
+                new_file = open(f'{caminho}\\{descrypt_file_name}', 'wb')
+                new_file.write(descrypt_data)
+                new_file.close()
 
-            os.remove(f'{caminho}\\{file}')
+                print(f"{azul}Arquivo {amarelo}{descrypt_file_name} {azul}descriptografado com sucesso.{resetar}")
+
+                os.remove(f'{caminho}\\{file}')
+        else:
+            print("", f"{vermelho}={resetar}"*50, "\n", f"{vermelho}{f'Caminho: {caminho} não encontrado':^50}","\n" f"{f'Certifique que este caminho ainda existe.':^50}{resetar}", "\n", f"{vermelho}={resetar}"*50)
 
 
 class Gerador():
@@ -829,6 +862,7 @@ class Importacao():
             else:
                 break
 
+
 class Exportacao():
     def exportar_bd(id, nome, email, telefone, cript, autent):
         # Conectando no BD e iniciando o Cursor
@@ -881,5 +915,5 @@ class Exportacao():
 
 
 # Execução do Programa
-
+Bibliotecas.importar()
 Validacao.validarMenu()
